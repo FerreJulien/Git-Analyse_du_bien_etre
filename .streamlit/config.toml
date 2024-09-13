@@ -4,7 +4,3 @@ backgroundColor = '#FFFFFF'
 secondaryBackgroundColor = '#F0F2F6'
 textColor = '#262730'
 font = "sans serif"
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
