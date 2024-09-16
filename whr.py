@@ -15,7 +15,7 @@ page=st.sidebar.radio("Aller vers", pages)
 
 if page == "Contexte":
     st.title("World Happiness Report - Introduction")
-    st.image("/Users/Thibault/Desktop/WORKFLOWPYTHON/Git-Analyse_du_bien_etre/images/whr-intro.png", use_column_width=True)
+    st.image("images/whr-intro.png", use_column_width=True)
     st.header("Contexte et objectifs")
 
     # Section 1: Genèse du World Happiness Report
@@ -157,6 +157,36 @@ elif page == "Dataviz'":
 
 elif page == "Carte interactive":
     st.subheader("Carte interactive")
+    # Chargement du dataset modifié
+    df_2024 = pd.read_csv("df_2024_modifie.csv")
+
+    year = st.slider("Sélectionnez une année", min_value=int(df_2024['Year'].min()), 
+                     max_value=int(df_2024['Year'].max()), value=2023)
+
+    variable = st.selectbox("Sélectionnez une variable", [
+        'Life Ladder', 'Log GDP per capita', 'Social support', 
+        'Healthy life expectancy at birth', 'Freedom to make life choices',
+        'Generosity', 'Perceptions of corruption', 'Positive affect', 'Negative affect'])
+
+    df_filtered = df_2024[df_2024['Year'] == year]
+
+
+    fig = px.choropleth(df_filtered, 
+                        locations="Country name", 
+                        locationmode="country names", 
+                        color=variable, 
+                        hover_name="Country name",  
+                        hover_data={variable: True},  
+                        color_continuous_scale=px.colors.sequential.Cividis, 
+                        title=f"Carte du {variable} en {year}")
+
+    fig.update_geos(
+        showcoastlines=True, coastlinecolor="Black",  
+        showland=True, landcolor="lightgray",  )
+    st.plotly_chart(fig)
+
+
+
 
 elif page == "Modélisation":
     st.subheader("Modélisation")
