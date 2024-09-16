@@ -4,6 +4,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
+import streamlit as st
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+import xgboost as xgb
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+import matplotlib.pyplot as plt
+from sklearn.impute import SimpleImputer
+
 
 df_2024_Table = pd.read_excel("DataForTable2.1.xls")
 df_continents = pd.read_csv("continents2.csv")
@@ -186,10 +198,248 @@ elif page == "Carte interactive":
     st.plotly_chart(fig)
 
 
-
-
 elif page == "Modélisation":
-    st.subheader("Modélisation")
+    st.title("Modélisation")
+
+    # Classification du problème
+    st.header("Classification du problème")
+
+    st.write("""
+    Notre projet se concentre sur un problème de régression. En effet, nous cherchons à prédire le "Ladder score", 
+    une variable continue qui reflète une mesure de bien-être ou de satisfaction de vie. Pour ce faire, nous utilisons des variables explicatives 
+    telles que le PIB par habitant, le soutien social, l'espérance de vie en bonne santé, etc.
+    """)
+
+    # Métriques de performance
+    st.subheader("Métriques de performance")
+    st.write("""
+    Nous avons utilisé deux métriques principales pour comparer nos modèles : la **Mean Squared Error (MSE)** et la **Root Mean Squared Error (RMSE)**.
+    La MSE pénalise plus fortement les grandes erreurs de prédiction, en mettant au carré les écarts entre les valeurs prédites et les valeurs réelles. 
+    Cela nous permet d'accorder plus de poids aux erreurs significatives, crucial pour garantir la précision des modèles. 
+    La MSE est couramment utilisée dans les algorithmes de régression, facilitant l'optimisation des modèles.
+
+    En parallèle, la **Root Mean Squared Error (RMSE)**, racine carrée de la MSE, est exprimée dans les mêmes unités que la variable cible (le Ladder score), 
+    ce qui la rend plus intuitive pour évaluer les erreurs de prédiction.
+
+    En dehors de la MSE et de la RMSE, nous avons également utilisé d'autres métriques pour affiner notre évaluation des performances des modèles :
+    - **Mean Absolute Error (MAE)** : calcule l'erreur moyenne en valeur absolue, offrant une mesure plus robuste car moins influencée par les outliers.
+    - **Coefficient de détermination (R²)** : mesure la proportion de la variance expliquée par le modèle et nous permet d'évaluer dans quelle mesure nos modèles capturent la variabilité des données.
+    
+    En combinant ces différentes métriques, nous obtenons une évaluation complète et robuste des performances de nos modèles.
+    """)
+
+    # Choix du modèle et optimisation
+    st.header("Choix du modèle et optimisation")
+
+    st.write("""
+    Nous avons confronté 3 modèles de régression que vous pouvez tester ci-dessous. 
+    **XGBoost** s'est révélé être le modèle le plus performant. Nous l'avons hyper-paramétré, notamment pour éviter le sur-aprentissage (explications dans la partie suivante).
+    """)
+
+
+    # Charger les données
+    df = pd.read_csv("df_2024_modifie.csv")
+    feats = df.drop(['Year', 'Country name', 'Life Ladder'], axis=1)
+    target = df['Life Ladder']
+
+# Pre processing des données (train test, OHE, valeurs manquantes...)
+    X_train, X_test, y_train, y_test = train_test_split(feats, target, test_size=0.2, random_state = 42)
+    OHE = OneHotEncoder(drop='first', sparse_output=False)  
+    X_train_encoded = OHE.fit_transform(X_train[['Region', 'Sub region']])
+    X_test_encoded = OHE.transform(X_test[['Region', 'Sub region']])
+    X_train_encoded_df = pd.DataFrame(X_train_encoded, columns=OHE.get_feature_names_out(['Region', 'Sub region']))
+    X_test_encoded_df = pd.DataFrame(X_test_encoded, columns=OHE.get_feature_names_out(['Region', 'Sub region']))
+    X_train = X_train.reset_index(drop=True)
+    X_test = X_test.reset_index(drop=True) 
+    X_train_full = pd.concat([X_train.drop(['Region', 'Sub region'], axis=1), X_train_encoded_df], axis=1)
+    X_test_full = pd.concat([X_test.drop(['Region', 'Sub region'], axis=1), X_test_encoded_df], axis=1)
+    imputer = SimpleImputer(missing_values=np.nan, strategy='median')
+    X_train_full_imputed = imputer.fit_transform(X_train_full)
+    X_test_full_imputed = imputer.transform(X_test_full)
+
+    all_columns = X_train_full.columns
+
+    X_train = pd.DataFrame(X_train_full_imputed, columns=all_columns)
+    X_test = pd.DataFrame(X_test_full_imputed, columns=all_columns)
+
+    model_option = st.selectbox("Sélectionnez un modèle de régression", ["Linear Regression", "Random Forest", "XGBoost [optimisé]"])
+
+# Fonction pour afficher les performances
+    def display_performance(model_name, y_test, y_pred):
+        mae = mean_absolute_error(y_test, y_pred)
+        mse = mean_squared_error(y_test, y_pred)
+        rmse = np.sqrt(mse)
+        r2 = r2_score(y_test, y_pred)
+    
+        st.subheader(f"Performances du modèle {model_name}")
+        st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
+        st.write(f"Mean Squared Error (MSE): {mse:.2f}")
+        st.write(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
+        st.write(f"R² Score: {r2:.2f}")
+
+    # Graphique des prédictions
+        fig, ax = plt.subplots()
+        ax.scatter(y_pred, y_test, color='blue', alpha=0.5)
+        ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')
+        ax.set_xlabel('Valeurs prédites')
+        ax.set_ylabel('Valeurs réelles')
+        ax.set_title(f"Graphique des prédictions pour {model_name}")
+        st.pyplot(fig)
+
+# Fonction pour afficher les feature importance (top 15) pour Random Forest et Linear Regression
+    def display_feature_importance(model, model_name, X_train):
+        st.subheader(f"Feature Importance pour {model_name}")
+    
+        if model_name == "Linear Regression":
+           # Pour Linearr Regression
+            feature_importance = np.abs(model.coef_)
+            feature_importance_df = pd.DataFrame({
+                'Feature': X_train.columns,
+                'Importance': feature_importance
+        }).sort_values(by='Importance', ascending=False)
+
+        elif model_name == "Random Forest":
+        # Pour Random Forest
+            feature_importance = model.feature_importances_
+            feature_importance_df = pd.DataFrame({
+            'Feature': X_train.columns,
+            'Importance': feature_importance
+        }).sort_values(by='Importance', ascending=False)
+    
+        feature_importance_df = feature_importance_df.head(15)
+
+    # Affichage graphiques Feature importance
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.barh(feature_importance_df['Feature'], feature_importance_df['Importance'], color='skyblue')
+        ax.set_xlabel('Importance')
+        ax.set_ylabel('Features')
+        ax.set_title(f"Top 15 Feature Importance pour {model_name}")
+        plt.gca().invert_yaxis()  
+        st.pyplot(fig)
+
+# Fonction spécifique pour afficher les feature importance pour XGBoost (top 15)
+    def display_feature_importance_xgboost(model):
+        st.subheader("Feature Importance pour XGBoost")
+        fig, ax = plt.subplots(figsize=(10, 6))
+        xgb.plot_importance(model, ax=ax, max_num_features=15)
+        plt.title('Top 15 Feature Importance ')
+        st.pyplot(fig)
+
+
+# Modélisation en fonction du choix
+    if model_option == "Linear Regression":
+        lr = LinearRegression()
+        lr.fit(X_train, y_train)
+        y_pred = lr.predict(X_test)
+        display_performance("Linear Regression", y_test, y_pred)
+        display_feature_importance(lr, "Linear Regression", X_train)
+
+    elif model_option == "Random Forest":
+        rf = RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42)
+        rf.fit(X_train, y_train)
+        y_pred = rf.predict(X_test)
+        display_performance("Random Forest", y_test, y_pred)
+        display_feature_importance(rf, "Random Forest", X_train)
+
+    elif model_option == "XGBoost [optimisé]":
+        # Utilisation de DMatrix pour XGBoost
+        dtrain = xgb.DMatrix(X_train, label=y_train, feature_names=list(X_train.columns))
+        dtest = xgb.DMatrix(X_test, label=y_test, feature_names=list(X_test.columns))
+
+    # Paramètres personnalisés pour XGBoost
+        params =  {
+            'objective': 'reg:squarederror',
+            'max_depth': 7,  
+            'learning_rate': 0.1, 
+            'subsample': 0.9,
+            'colsample_bytree': 0.7,  
+            'gamma': 0.2, 
+            'reg_alpha': 3.0,  
+            'reg_lambda': 7.0,  
+            'min_child_weight': 3,  
+            'seed': 42
+        }
+        num_boost_round = 150
+        model = xgb.train(params, dtrain, num_boost_round)
+
+        y_pred = model.predict(dtest)
+    
+    # Affichage des performances et des feature importance
+        display_performance("XGBoost", y_test, y_pred)
+        display_feature_importance_xgboost(model)
+
+# Hyper paramétrage du modèle XG Boost
+
+    st.subheader("Hyper-Paramétrage du modèle XG Boost")
+    st.write("""
+    Nous avons effectué une recherche par grille (ou “GridSearch”) pour identifier les valeurs optimales des hyper-paramètres. 
+    Nous avons ensuite appliqué ces hyper-paramètres qui ont donné d’excellentes performances sur la prédiction du jeu de test : 
+
+** Mean Absolute Error: 0.25 
+Mean Squared Error: 0.11
+R² Score: 0.90 
+Mean Absolute Percentage Error (MAPE): 4.93% **
+
+Toutefois, **qui dit excellentes performances dit aussi risque de surapprentissage** ou “overfitting”. 
+
+Nous avons donc cherché à mesurer s' il y avait de l’overfitting en comparant le RMSE du jeu d'entraînement et celui du jeu de test grâce à une validation croisée. 
+
+Les résultats ont été sans appel (hélas) avec un **RMSE de 0.03 sur le jeu d’entraînement et de 0.38 sur le jeu de test.**
+L’écart est bien trop grand et nous avons cherché à réduire cet écart tout en minimisant la perte de performance sur le jeu de test : **en somme, nous avons recherché le bon équilibre.**
+
+Après cette phase d'ajustement, nous pouvons retenir les points clés suivants :
+
+**Nous avons conservé un MSE très performant (qui passe de 0,11 à 0,15)
+L’écart entre le Test RMSE et le Train RMSE est de 25% : il y a certes overfitting mais dans des proportions acceptables.**
+             
+         
+    """)
+#Analyse feature importance 
+
+    st.subheader("Analyse de la Feature Importance")
+    st.write (""" La feature importance est intéressante puisqu’elle montre que le modèle ne performe pas à partir d’une seule variable qui occuperait une importance démesurée par rapport aux autres. 
+
+Il y a donc moins de risque que les performances du modèle soient biaisées. 
+
+Au contraire, un total de 8 variables ont une importance clé dans la prédiction des performances. 
+
+Certes la variable du PIB (“Log GDP per capita”) est 2 fois plus importante que la variable “Perceptions of corruption” dans les performances du modèle mais cela semble finalement très cohérent.  Un niveau de vie élevé a un impact important sur le bien-être d’une population.
+
+Nous relevons également que le continent d’origine et la région améliorent le modèle mais n’ont qu’une importance très relative dans le score de bonheur. 
+
+Cela constitue en soi une information pertinente et intéressante.
+
+
+
+    """)
+#INterprétation des résultats
+    st.header("Interprétation des résultats")
+    st.write (""" Voici pour rappel les excellentes performances finales de notre modèle selon les indicateurs clés : 
+                 
+**​Mean Absolute Error** : 0.29  *erreur moyenne absolue en unités réelles de la variable cible*
+              
+**Mean Squared Error** : 0.15  *moyenne des carrés des erreurs entre les valeurs prédites et les valeurs réelles.*
+
+**Root Mean Squared Error** : 0.39 *écart-type des résidus*
+
+**R² Score**: 0.87  *indique à quel point le modèle explique la variance des données* 
+
+**Mean Absolute Percentage Error (MAPE)** : 5.74% *affiche l'erreur en % relatif aux valeurs réelles* 
+
+Les excellentes performances de départ étaient trompeuses puisqu’elles ont révélé un overfitting dangereux pour les prédictions futures du modèle.
+
+Nous avons pu rectifier le tir en ajustant les hyper-paramètres dont certains ont eu un fort impact sur les résultats : 
+
+**max_depth** : définit la profondeur maximale de chaque arbre de décision construit par XGBoost. Une profondeur trop élevée peut conduire à un overfitting car le modèle devient trop complexe. Nous avons pu maintenir une profondeur relativement élevée de 7 qui nous semblait important pour la qualité de l’apprentissage. 
+
+**learning_rate** : contrôle la taille des étapes que le modèle fait à chaque nouvel arbre ajouté. Trop faible, il nécessite plus d’itérations de boosting ; trop élevé, il va converger trop rapidement sur les données d’entraînement. Nous avons utilisé un taux de 0.1 modéré, souvent utilisé en pratique.
+
+**subsample** : le sous-échantillonnage détermine si chaque arbre est formé avec toutes les données disponibles ou une fraction. Nous avons fixé un seuil à 0.9 qui permet au modèle de voir suffisamment de données tout en réduisant l’overfitting. 
+
+
+
+    """)
+
 
 elif page == "Conclusion":
     st.subheader("Conclusion")
