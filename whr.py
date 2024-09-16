@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+import plotly.express as px
 
 df_2024_Table = pd.read_excel("DataForTable2.1.xls")
 df_continents = pd.read_csv("continents2.csv")
@@ -89,8 +89,68 @@ if page == "Contexte":
 
 
 elif page == "Jeu de données":
-    st.subheader("Jeu de données")
-    st.write(df_2024_Table.head())
+    st.header("Jeu de données")
+# Chargement du dataset modifié
+    df_2024 = pd.read_csv("df_2024_modifie.csv")
+
+    st.markdown("""
+    **Nous avons utilisé le dataset historique du WHR 2024** nommé _"DataForTable2.1"_. Celui-ci est en libre accès [ici](https://happiness-report.s3.amazonaws.com/2024/DataForTable2.1.xls).
+
+    Ce dataset comporte **2363 entrées** s’étalant de **2005 à 2023**. Nous pouvons ainsi connaître les résultats des **165 pays** ayant participé au moins une fois à l’étude.
+    
+    **Les données collectées sont les suivantes :**
+    - Le ladder score du pays, soit la moyenne des évaluations subjectives du niveau de bonheur par chaque répondant.
+    - 6 variables : le PIB, l’espérance de vie en bonne santé, la liberté de choix, la générosité, l’importance des connexions sociales, et la perception du niveau de corruption.
+    - 2 évaluations subjectives des émotions ressenties par les répondants le jour précédant l’étude : les **émotions positives** (ou “positive affect”) et les **émotions négatives** (“negative affect”).
+
+    **Points de vigilance relevés sur ce dataset :**
+    - La liste des pays est très disparate d’une année sur l’autre, ce qui complique les comparaisons d’une année à l’autre. Elle devient plus régulière à partir du début des années 2010.
+    - Les premières années sont plus susceptibles de comporter des **valeurs manquantes**.
+
+    **Nous avons décidé de ne retenir que les 10 dernières années** pour la partie Data Visualisation. Ce choix permet de réduire le nombre de valeurs manquantes et d’améliorer la lisibilité des graphiques avec une liste de pays sensiblement homogène d’une année à l’autre.
+    
+    **Variable cible** :
+    Le modèle de machine learning que nous allons entraîner aura pour objectif de prédire le **ladder score** d'un pays en fonction des différentes variables du dataset.
+    """)
+
+    st.markdown("### Pré-processing et Feature Engineering")
+    st.markdown("""
+    Le prétraitement a d'abord consisté à harmoniser les deux jeux de données avant de les fusionner, en veillant à ce que les **noms des pays** soient uniformes des deux côtés. L'objectif était d'ajouter, dans le dataset _"DataForTable2.1"_, des informations précises sur la **situation géographique** de chaque pays, son continent et sa sous-région. Le Kosovo n'étant pas inclus dans le dataset _"continents2"_, ses informations ont été ajoutées manuellement.
+
+    Ensuite, pour obtenir un dataset avec un minimum de **valeurs manquantes** tout en restant suffisamment complet, nous avons conservé uniquement les données des **dix dernières années**, de 2014 à 2023.
+    """)
+
+    st.markdown("### Colonnes du dataset modifié")
+    st.write(df_2024.columns)
+
+    st.markdown("""
+    Les **valeurs manquantes restantes** seront traitées uniquement dans la phase de Machine Learning. Pour la Data Visualisation, aucune autre transformation ne sera effectuée. Le remplacement des valeurs manquantes sera réalisé via la **médiane**, plus robuste face aux **outliers**, d'abord sur le jeu d'entraînement puis sur le jeu de test, afin d'éviter toute **fuite de données**.
+
+    La transformation des données a été effectuée via un **Robust Scaling** pour assurer la comparabilité des variables et optimiser les performances des algorithmes de machine learning. Cette méthode, elle aussi résistante aux **outliers**, permet de neutraliser l'impact des valeurs extrêmes, garantissant que le modèle capte les tendances réelles et fournit des prédictions fiables.
+
+    **Nous prévoyons également d'appliquer une Analyse en Composantes Principales (ACP)** dans la phase de modélisation. Cette technique de réduction de dimension nous permettra de simplifier le modèle en réduisant le nombre de variables tout en conservant l'essentiel de l'information. Le but étant d’éventuellement améliorer les performances des modèles et limiter le risque de **surapprentissage**.
+    """)
+
+# Aperçu du dataset modifié
+    st.subheader("Aperçu des données modifiées")
+    st.dataframe(df_2024.head())
+
+# Aperçu de l'évolution du Ladder Score par pays
+    st.subheader(" Aperçu de l'évolution du Ladder Score par pays")
+    # Liste des pays disponibles dans le dataset
+    countries = df_2024['Country name'].unique()
+    # Filtre interactif pour sélectionner un ou plusieurs pays
+    selected_countries = st.multiselect("Sélectionnez un ou plusieurs pays", countries, default=["France", "Japan", "Costa Rica"])
+    df_filtered = df_2024[df_2024['Country name'].isin(selected_countries)]
+    fig = px.line(df_filtered, x="Year", y="Life Ladder", color="Country name", 
+                  title="Évolution du Ladder Score (2014-2023)")
+    st.plotly_chart(fig)
+
+
+# Statistiques descriptives
+    st.subheader("Statistiques descriptives")
+    st.write(df_2024.describe())
+
 
 elif page == "Dataviz'":
     st.subheader("Dataviz'")
