@@ -168,7 +168,7 @@ elif page == "Jeu de données":
 elif page == "Dataviz'":
     st.subheader("Dataviz'")
 
-    components.iframe("https://public.flourish.studio/visualisation/19439091/embed", width=700, height=500)
+    
 
 elif page == "Carte interactive":
     st.subheader("Carte interactive")
