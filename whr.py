@@ -338,6 +338,9 @@ elif page == "Dataviz' dynamique":
         showland=True, landcolor="lightgray",  )
     st.plotly_chart(fig)
 
+    height = st.slider("Ajuster la hauteur pour optimiser l'affichage des filtres sélectionnés (pixels). Puis cliquer sur un filtre pour relancer l'affichage.", min_value=800, max_value=5000, value=1000)
+    components.iframe("https://public.flourish.studio/visualisation/19439621/embed", height=height)
+
 
 
 # ///////////////////////
