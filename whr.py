@@ -25,6 +25,10 @@ st.sidebar.title("World Happiness Report : Dataviz' & Prédiction")
 pages = ["Contexte", "Jeu de données", "Dataviz'", "Carte interactive", "Modélisation", "Conclusion"]
 page=st.sidebar.radio("Aller vers", pages)
 
+# ///////////////////
+# // PAGE CONTEXTE //
+# ///////////////////
+
 if page == "Contexte":
     st.title("World Happiness Report - Introduction")
     st.image("images/whr-intro.png", use_column_width=True)
@@ -100,6 +104,11 @@ if page == "Contexte":
     """)
 
 
+# /////////////////////////
+# // PAGE JEU DE DONNEES //
+# /////////////////////////
+
+
 elif page == "Jeu de données":
     st.header("Jeu de données")
 # Chargement du dataset modifié
@@ -164,8 +173,133 @@ elif page == "Jeu de données":
     st.write(df_2024.describe())
 
 
+# //////////////////
+# // PAGE DATAVIZ //
+# //////////////////
+
+
 elif page == "Dataviz'":
     st.subheader("Dataviz'")
+
+    df_2024 = pd.read_csv("df_2024_modifie.csv")
+
+    option = st.selectbox(
+    'Choisissez un graphique à afficher :',
+    ('Heatmap des Corrélations',
+     'Pairplot',
+     'Graphique de Dispersion',
+     'Nuage de points',
+     'Histogramme')
+    )
+
+    # PAIRPLOT
+
+    if option == 'Pairplot':
+         st.title('Pairplot')
+
+         pairplot_fig = sns.pairplot(data=df_2024.drop(columns='Year'),
+                                    diag_kind='hist',
+                                    hue='Region',
+                                    palette='bright')
+    
+         st.pyplot(pairplot_fig)
+
+    # HEATMAP
+
+    elif option == 'Heatmap des Corrélations':
+        st.title('Heatmap des Corrélations')
+
+        def conv_float(colonne, df):
+                if df[colonne].dtype == 'object':
+                   df[colonne] = df[colonne].str.replace(',', '.').astype(float)
+    
+        colonnes_a_convertir = ['Life Ladder', 'Log GDP per capita', 'Social support', 'Healthy life expectancy at birth',
+                        'Freedom to make life choices', 'Generosity','Perceptions of corruption', 'Positive affect', 'Negative affect']
+
+        # Conversion
+        for colonne in colonnes_a_convertir:
+            conv_float(colonne, df_2024)
+
+        # Calcul de la matrice de corrélation
+        corr = df_2024[colonnes_a_convertir].corr()
+
+        # Affichage avec Streamlit
+
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(corr, annot=True, cmap='coolwarm', linewidths=0.5)
+        plt.xticks(rotation=50, ha='right')
+        plt.title('Heatmap des Corrélations')
+  
+        st.pyplot(plt)
+
+
+    # GRAPHIQUE DE DISPERSION
+
+    elif option == 'Graphique de Dispersion':
+        st.title('Graphique de Dispersion')
+    
+        fig = px.scatter(df_2024, 
+                    x='Log GDP per capita', 
+                    y='Life Ladder', 
+                    color='Country name',
+                    title='Relation entre le Log PIB par habitant et la Satisfaction de vie',
+                    labels={'Log GDP per capita': 'Log PIB par habitant', 'Life Ladder': 'Satisfaction de vie'},
+                    hover_data=['Country name'])
+
+        st.plotly_chart(fig)
+
+
+    # SCATTERPLOT
+
+    elif option == 'Nuage de points':
+        st.title('Nuage de points : Log PIB par habitant et Life Ladder')
+        
+        fig = px.scatter(df_2024, 
+                 x='Log GDP per capita', 
+                 y='Life Ladder', 
+                 color='Region',
+                 title='Relation entre le Log PIB par habitant et Life Ladder',
+                 labels={'Log GDP per capita': 'Log PIB par habitant', 'Life Ladder': 'Satisfaction de vie'},
+                 hover_name='Country name')
+
+        st.plotly_chart(fig)
+
+
+    # HISTOGRAMME
+
+    elif option == 'Histogramme':
+
+        st.title('Comparaison des valeurs moyennes par région')
+
+        cols_to_convert = ['Life Ladder', 'Log GDP per capita', 'Social support', 
+                           'Healthy life expectancy at birth', 'Freedom to make life choices', 
+                           'Generosity', 'Perceptions of corruption']
+
+        df_2024[cols_to_convert] = df_2024[cols_to_convert].astype(float)
+
+        # Calculer les moyennes par région, en ignorant les colonnes non numériques
+        df_mean = df_2024.groupby('Region')[cols_to_convert].mean().reset_index()
+
+        # Transformation des données pour une visualisation avec plotly.express
+        df_long = df_mean.melt(id_vars=['Region'], 
+                               value_vars=cols_to_convert,
+                               var_name='Variable', 
+                               value_name='Value')
+
+        # Créer un graphique en barres empilées pour comparer les valeurs moyennes
+        fig = px.bar(df_long, x='Region', y='Value', color='Variable', barmode='group',
+                     title='Comparaison des valeurs moyennes par région',
+                     labels={'Value': 'Valeur moyenne', 'Variable': 'Facteur'})
+
+        # Afficher le graphique dans Streamlit
+
+        st.plotly_chart(fig)
+
+
+
+# ////////////////////////////
+# // PAGE CARTE INTERACTIVE //
+# ////////////////////////////
 
 elif page == "Carte interactive":
     st.subheader("Carte interactive")
@@ -197,6 +331,11 @@ elif page == "Carte interactive":
         showland=True, landcolor="lightgray",  )
     st.plotly_chart(fig)
 
+
+
+# ///////////////////////
+# // PAGE MODELISATION //
+# ///////////////////////
 
 elif page == "Modélisation":
     st.title("Modélisation")
