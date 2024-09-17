@@ -23,7 +23,7 @@ df_continents = pd.read_csv("continents2.csv")
 
 
 st.sidebar.title("World Happiness Report : Dataviz' & Prédiction")
-pages = ["Contexte", "Jeu de données", "Dataviz'", "Carte interactive", "Modélisation", "Conclusion"]
+pages = ["Contexte", "Jeu de données", "Dataviz' statique", "Dataviz' dynamique", "Modélisation", "Conclusion"]
 page=st.sidebar.radio("Aller vers", pages)
 
 # ///////////////////
@@ -174,19 +174,14 @@ elif page == "Jeu de données":
     st.write(df_2024.describe())
 
 
-# //////////////////
-# // PAGE DATAVIZ //
-# //////////////////
+# ///////////////////////////
+# // PAGE DATAVIZ STATIQUE //
+# ///////////////////////////
 
 
-elif page == "Dataviz'":
-    st.subheader("Dataviz'")
+elif page == "Dataviz' statique":
 
-    
     df_2024 = pd.read_csv("df_2024_modifie.csv")
-
-    components.iframe("https://public.flourish.studio/visualisation/19439091/embed", width=700, height=500)
-
     option = st.selectbox(
     'Choisissez un graphique à afficher :',
     ('Heatmap des Corrélations',
@@ -302,10 +297,18 @@ elif page == "Dataviz'":
 
 
 # ////////////////////////////
-# // PAGE CARTE INTERACTIVE //
+# // PAGE DATAVIZ DYNAMIQUE //
 # ////////////////////////////
 
-elif page == "Carte interactive":
+elif page == "Dataviz' dynamique":
+
+    st.subheader("Bar Chart Race'")
+
+    df_2024 = pd.read_csv("df_2024_modifie.csv")
+
+    components.iframe("https://public.flourish.studio/visualisation/19439091/embed", width=700, height=500)
+
+
     st.subheader("Carte interactive")
     # Chargement du dataset modifié
     df_2024 = pd.read_csv("df_2024_modifie.csv")
