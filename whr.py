@@ -194,14 +194,20 @@ elif page == "Dataviz' statique":
     # PAIRPLOT
 
     if option == 'Pairplot':
-         st.title('Pairplot')
+        st.title('Pairplot')
 
-         pairplot_fig = sns.pairplot(data=df_2024.drop(columns='Year'),
+        pairplot_fig = sns.pairplot(data=df_2024.drop(columns='Year'),
                                     diag_kind='hist',
                                     hue='Region',
                                     palette='bright')
     
-         st.pyplot(pairplot_fig)
+        st.pyplot(pairplot_fig)
+        st.write("""
+                 Ce pairplot montre des corrélations positives entre le Ladder score et plusieurs variables économiques et sociales, particulièrement Log GDP per capita, Social support, Healthy life expectancy, et Freedom to make life choices.
+                Les différences régionales sont également notables, avec les pays européens ayant généralement des scores plus élevés et les pays africains des scores plus bas.
+                Les variables “Generosity” et “Perceptions of corruption” montrent des corrélations moins claires avec les autres variables, suggérant qu'elles ont un impact plus complexe et potentiellement moins direct sur le Ladder score.
+                """)
+
 
     # HEATMAP
 
@@ -230,6 +236,13 @@ elif page == "Dataviz' statique":
         plt.title('Heatmap des Corrélations')
   
         st.pyplot(plt)
+
+        st.write("""
+                Cette heatmap montre les corrélations entre différentes variables et le "Life Ladder".
+                Des variables comme "Log GDP per capita", "Social support", et "Healthy life expectancy at birth" présentent des corrélations positives fortes avec le "Life Ladder", indiquant qu'elles sont des facteurs clés dans l'amélioration de la qualité de vie.
+                En revanche, "Perceptions of corruption" et "Negative affect" sont corrélées négativement avec le "Life Ladder", suggérant que la corruption perçue et les émotions négatives ont un impact défavorable sur la satisfaction de vie.
+                Les autres variables montrent des corrélations plus faibles, mais globalement, les tendances observées confirment que des facteurs économiques et sociaux jouent un rôle important dans la perception de la qualité de vie.
+                """)
 
 
     # GRAPHIQUE DE DISPERSION
