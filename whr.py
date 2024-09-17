@@ -15,6 +15,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 import matplotlib.pyplot as plt
 from sklearn.impute import SimpleImputer
+import streamlit.components.v1 as components
 
 
 df_2024_Table = pd.read_excel("DataForTable2.1.xls")
