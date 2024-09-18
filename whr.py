@@ -249,17 +249,20 @@ elif page == "Dataviz'":
 
     elif option == 'Bar Chart Race':
 
-        st.subheader("Bar Chart Race'")
+        st.subheader("Bar Chart Race")
 
         df_2024 = pd.read_csv("df_2024_modifie.csv")
 
         components.iframe("https://public.flourish.studio/visualisation/19439091/embed", width=700, height=500)
 
-        st.subheader("Carte interactive")
+        
 
     # CARTE INTERACTIVE
 
     elif option == 'Carte Interactive':
+
+        st.subheader("Carte interactive")
+
         # Chargement du dataset modifié
         df_2024 = pd.read_csv("df_2024_modifie.csv")
 
