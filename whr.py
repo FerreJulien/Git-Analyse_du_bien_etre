@@ -395,8 +395,11 @@ elif page == "Modélisation":
 
     st.write("""
     Nous avons confronté 3 modèles de régression que vous pouvez tester ci-dessous. 
-    **XGBoost** s'est révélé être le modèle le plus performant. Nous l'avons hyper-paramétré, notamment pour éviter le sur-aprentissage (explications dans la partie suivante).
+    **XGBoost** s'est révélé être le modèle le plus performant. Nous l'avons hyper-paramétré, notamment pour éviter le sur-aprentissage.         
     """)
+    st.subheader("Performances des modèles")
+    st.image("images/recap-model-perf.png", width=500)
+    
 
 
     # Charger les données
@@ -537,10 +540,11 @@ elif page == "Modélisation":
     Nous avons effectué une recherche par grille (ou “GridSearch”) pour identifier les valeurs optimales des hyper-paramètres. 
     Nous avons ensuite appliqué ces hyper-paramètres qui ont donné d’excellentes performances sur la prédiction du jeu de test : 
 
-** Mean Absolute Error: 0.25 
-Mean Squared Error: 0.11
-R² Score: 0.90 
-Mean Absolute Percentage Error (MAPE): 4.93% **
+**Mean Absolute Error: 0.25           
+Mean Squared Error: 0.11           
+R² Score: 0.90            
+Mean Absolute Percentage Error (MAPE): 4.93%**
+             
 
 Toutefois, **qui dit excellentes performances dit aussi risque de surapprentissage** ou “overfitting”. 
 
