@@ -23,7 +23,7 @@ df_continents = pd.read_csv("continents2.csv")
 
 
 st.sidebar.title("World Happiness Report : Dataviz' & Prédiction")
-pages = ["Contexte", "Jeu de données", "Dataviz' statique", "Dataviz' dynamique", "Modélisation", "Conclusion"]
+pages = ["Contexte", "Jeu de données", "Dataviz'", "Modélisation", "Conclusion"]
 page=st.sidebar.radio("Aller vers", pages)
 
 # ///////////////////
@@ -179,99 +179,36 @@ elif page == "Jeu de données":
 # ///////////////////////////
 
 
-elif page == "Dataviz' statique":
+elif page == "Dataviz'":
 
     df_2024 = pd.read_csv("df_2024_modifie.csv")
     option = st.selectbox(
     'Choisissez un graphique à afficher :',
-    ('Heatmap des Corrélations',
-     'Pairplot',
-     'Graphique de Dispersion',
-     'Nuage de points',
-     'Histogramme')
+    ('Nuage de points',
+     'Histogramme',
+     'Bar Chart Race',
+     'Carte Interactive',
+     'Diagrammes')
     )
 
-    # PAIRPLOT
-
-    if option == 'Pairplot':
-        st.title('Pairplot')
-
-        pairplot_fig = sns.pairplot(data=df_2024.drop(columns='Year'),
-                                    diag_kind='hist',
-                                    hue='Region',
-                                    palette='bright')
     
-        st.pyplot(pairplot_fig)
-        st.write("""
-                 Ce pairplot montre des corrélations positives entre le Ladder score et plusieurs variables économiques et sociales, particulièrement Log GDP per capita, Social support, Healthy life expectancy, et Freedom to make life choices.
-                Les différences régionales sont également notables, avec les pays européens ayant généralement des scores plus élevés et les pays africains des scores plus bas.
-                Les variables “Generosity” et “Perceptions of corruption” montrent des corrélations moins claires avec les autres variables, suggérant qu'elles ont un impact plus complexe et potentiellement moins direct sur le Ladder score.
-                """)
-
-
-    # HEATMAP
-
-    elif option == 'Heatmap des Corrélations':
-        st.title('Heatmap des Corrélations')
-
-        def conv_float(colonne, df):
-                if df[colonne].dtype == 'object':
-                   df[colonne] = df[colonne].str.replace(',', '.').astype(float)
-    
-        colonnes_a_convertir = ['Life Ladder', 'Log GDP per capita', 'Social support', 'Healthy life expectancy at birth',
-                        'Freedom to make life choices', 'Generosity','Perceptions of corruption', 'Positive affect', 'Negative affect']
-
-        # Conversion
-        for colonne in colonnes_a_convertir:
-            conv_float(colonne, df_2024)
-
-        # Calcul de la matrice de corrélation
-        corr = df_2024[colonnes_a_convertir].corr()
-
-        # Affichage avec Streamlit
-
-        plt.figure(figsize=(12, 8))
-        sns.heatmap(corr, annot=True, cmap='coolwarm', linewidths=0.5)
-        plt.xticks(rotation=50, ha='right')
-        plt.title('Heatmap des Corrélations')
-  
-        st.pyplot(plt)
-
-        st.write("""
-                Cette heatmap montre les corrélations entre différentes variables et le "Life Ladder".
-                Des variables comme "Log GDP per capita", "Social support", et "Healthy life expectancy at birth" présentent des corrélations positives fortes avec le "Life Ladder", indiquant qu'elles sont des facteurs clés dans l'amélioration de la qualité de vie.
-                En revanche, "Perceptions of corruption" et "Negative affect" sont corrélées négativement avec le "Life Ladder", suggérant que la corruption perçue et les émotions négatives ont un impact défavorable sur la satisfaction de vie.
-                Les autres variables montrent des corrélations plus faibles, mais globalement, les tendances observées confirment que des facteurs économiques et sociaux jouent un rôle important dans la perception de la qualité de vie.
-                """)
-
-
-    # GRAPHIQUE DE DISPERSION
-
-    elif option == 'Graphique de Dispersion':
-        st.title('Graphique de Dispersion')
-    
-        fig = px.scatter(df_2024, 
-                    x='Log GDP per capita', 
-                    y='Life Ladder', 
-                    color='Country name',
-                    title='Relation entre le Log PIB par habitant et la Satisfaction de vie',
-                    labels={'Log GDP per capita': 'Log PIB par habitant', 'Life Ladder': 'Satisfaction de vie'},
-                    hover_data=['Country name'])
-
-        st.plotly_chart(fig)
-
-
     # SCATTERPLOT
 
-    elif option == 'Nuage de points':
-        st.title('Nuage de points : Log PIB par habitant et Life Ladder')
+    if option == 'Nuage de points':
         
+        st.title('Relations entre Life Ladder et les différentes variables')
+
+        variable = st.selectbox("Sélectionnez une variable", [
+           'Log GDP per capita', 'Social support', 
+           'Healthy life expectancy at birth', 'Freedom to make life choices',
+           'Generosity', 'Perception of corruption', 'Positive affect', 'Negative affect'])
+
         fig = px.scatter(df_2024, 
-                 x='Log GDP per capita', 
+                 x= variable, 
                  y='Life Ladder', 
                  color='Region',
-                 title='Relation entre le Log PIB par habitant et Life Ladder',
-                 labels={'Log GDP per capita': 'Log PIB par habitant', 'Life Ladder': 'Satisfaction de vie'},
+                 title='Relation entre ' + variable + ' et Life Ladder',
+                 
                  hover_name='Country name')
 
         st.plotly_chart(fig)
@@ -300,7 +237,7 @@ elif page == "Dataviz' statique":
 
         # Créer un graphique en barres empilées pour comparer les valeurs moyennes
         fig = px.bar(df_long, x='Region', y='Value', color='Variable', barmode='group',
-                     title='Comparaison des valeurs moyennes par région',
+                    
                      labels={'Value': 'Valeur moyenne', 'Variable': 'Facteur'})
 
         # Afficher le graphique dans Streamlit
@@ -308,51 +245,57 @@ elif page == "Dataviz' statique":
         st.plotly_chart(fig)
 
 
+    # BAR CHART RACE
 
-# ////////////////////////////
-# // PAGE DATAVIZ DYNAMIQUE //
-# ////////////////////////////
+    elif option == 'Bar Chart Race':
 
-elif page == "Dataviz' dynamique":
+        st.subheader("Bar Chart Race'")
 
-    st.subheader("Bar Chart Race'")
+        df_2024 = pd.read_csv("df_2024_modifie.csv")
 
-    df_2024 = pd.read_csv("df_2024_modifie.csv")
+        components.iframe("https://public.flourish.studio/visualisation/19439091/embed", width=700, height=500)
 
-    components.iframe("https://public.flourish.studio/visualisation/19439091/embed", width=700, height=500)
+        st.subheader("Carte interactive")
 
+    # CARTE INTERACTIVE
 
-    st.subheader("Carte interactive")
-    # Chargement du dataset modifié
-    df_2024 = pd.read_csv("df_2024_modifie.csv")
+    elif option == 'Carte Interactive':
+        # Chargement du dataset modifié
+        df_2024 = pd.read_csv("df_2024_modifie.csv")
 
-    year = st.slider("Sélectionnez une année", min_value=int(df_2024['Year'].min()), 
+        year = st.slider("Sélectionnez une année", min_value=int(df_2024['Year'].min()), 
                      max_value=int(df_2024['Year'].max()), value=2023)
 
-    variable = st.selectbox("Sélectionnez une variable", [
-        'Life Ladder', 'Log GDP per capita', 'Social support', 
-        'Healthy life expectancy at birth', 'Freedom to make life choices',
-        'Generosity', 'Perceptions of corruption', 'Positive affect', 'Negative affect'])
+        variable = st.selectbox("Sélectionnez une variable", [
+           'Life Ladder', 'Log GDP per capita', 'Social support', 
+           'Healthy life expectancy at birth', 'Freedom to make life choices',
+           'Generosity', 'Perceptions of corruption', 'Positive affect', 'Negative affect'])
 
-    df_filtered = df_2024[df_2024['Year'] == year]
+        df_filtered = df_2024[df_2024['Year'] == year]
 
 
-    fig = px.choropleth(df_filtered, 
-                        locations="Country name", 
-                        locationmode="country names", 
-                        color=variable, 
-                        hover_name="Country name",  
-                        hover_data={variable: True},  
-                        color_continuous_scale=px.colors.sequential.Cividis, 
-                        title=f"Carte du {variable} en {year}")
+        fig = px.choropleth(df_filtered, 
+                            locations="Country name", 
+                            locationmode="country names", 
+                            color=variable, 
+                            hover_name="Country name",  
+                            hover_data={variable: True},  
+                            color_continuous_scale=px.colors.sequential.Cividis, 
+                            title=f"Carte du {variable} en {year}")
 
-    fig.update_geos(
-        showcoastlines=True, coastlinecolor="Black",  
-        showland=True, landcolor="lightgray",  )
-    st.plotly_chart(fig)
+        fig.update_geos(
+           showcoastlines=True, coastlinecolor="Black",  
+           showland=True, landcolor="lightgray",  )
+        
+        st.plotly_chart(fig)
 
-    height = st.slider("Ajuster la hauteur pour optimiser l'affichage des filtres sélectionnés (pixels). Puis cliquer sur un filtre pour relancer l'affichage.", min_value=800, max_value=6000, value=6000)
-    components.iframe("https://public.flourish.studio/visualisation/19439621/embed", height=height)
+
+    # DIAGRAMMES EN RADAR
+
+    elif option == 'Diagrammes':
+    
+        height = st.slider("Ajuster la hauteur pour optimiser l'affichage des filtres sélectionnés (pixels). Puis cliquer sur un filtre pour relancer l'affichage.", min_value=800, max_value=6000, value=6000)
+        components.iframe("https://public.flourish.studio/visualisation/19439621/embed", height=height)
 
 
 
