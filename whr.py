@@ -186,6 +186,7 @@ elif page == "Dataviz'":
     'Choisissez un graphique à afficher :',
     ('Nuage de points',
      'Histogramme',
+     'Heatmap',
      'Bar Chart Race',
      'Carte Interactive',
      'Diagrammes')
@@ -243,6 +244,33 @@ elif page == "Dataviz'":
         # Afficher le graphique dans Streamlit
 
         st.plotly_chart(fig)
+
+
+    # HEATMAP
+
+    elif option == 'Heatmap':
+
+
+        def conv_float(colonne):
+            if df_2024[colonne].dtype == 'object':
+                df_2024[colonne] = df_2024[colonne].str.replace(',', '.').astype(float)
+
+            colonnes_a_convertir = ['Life Ladder', 'Log GDP per capita', 'Social support', 'Healthy life expectancy at birth',
+                        'Freedom to make life choices', 'Generosity','Perceptions of corruption', 'Positive affect', 'Negative affect']
+
+
+        for colonne in colonnes_a_convertir:
+            conv_float(colonne)
+
+
+        corr = df_2024[colonnes_a_convertir].corr()
+
+
+        plt.figure(figsize=(12, 8))
+        sns.heatmap(corr, annot=True, cmap='coolwarm', linewidths=0.5)
+        plt.xticks(rotation=50,ha='right')
+        plt.title('Heatmap des Corrélations')
+        plt.show()            
 
 
     # BAR CHART RACE
