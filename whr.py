@@ -170,13 +170,30 @@ elif page == "Jeu de données":
 
 
 # Statistiques descriptives
+   
+    # Describe
     st.subheader("Statistiques descriptives")
     st.write(df_2024.describe())
 
+    # Boxplot
+    cols_to_select = ['Life Ladder', 'Log GDP per capita', 'Social support', 
+                  'Healthy life expectancy at birth', 'Freedom to make life choices', 
+                  'Generosity', 'Perceptions of corruption', 'Positive affect',	'Negative affect']
 
-# ///////////////////////////
-# // PAGE DATAVIZ STATIQUE //
-# ///////////////////////////
+    selected_col = st.selectbox('Sélectionnez une variable pour le boxplot:', cols_to_select)
+
+    fig = px.box(df_2024,
+             x='Region',
+             y=selected_col,
+             title=f'{selected_col} par Région',
+             labels={selected_col: selected_col, 'Region': 'Région'},
+             hover_name='Country name')
+
+    st.plotly_chart(fig)
+
+# ///////////////////
+# // PAGE DATAVIZ  //
+# ///////////////////
 
 
 elif page == "Dataviz'":
@@ -576,4 +593,33 @@ Nous avons pu rectifier le tir en ajustant les hyper-paramètres dont certains o
 
 elif page == "Conclusion":
     st.subheader("Conclusion")
-    st.write("Co")
+    st.write(""" Une première conclusion de ce projet est l'importance de multiples facteurs dans la compréhension et l'évaluation de la satisfaction de vie à travers le monde.
+Bien que des indicateurs, quantifiables et mesurables, tels le PIB par habitant et l'espérance de vie soient importants, des variables comme le support social, la liberté de faire des choix de vie, la générosité et la perception de la corruption ont également un impact significatif sur le bonheur des populations.
+             
+
+**Limites et perspectives**
+
+Les données du Wordl Happiness Report présentent certaines limites malgré les résultats intéressants obtenus.
+Les indicateurs comme la satisfaction de vie ou la perception de la corruption sont intrinsèquement subjectifs et peuvent être influencés par des contextes culturels et sociaux propres à chaque région.
+
+En termes de perspectives d'amélioration, une approche plus complète pourrait intégrer des données supplémentaires pour enrichir l'analyse. 
+Par exemple, il serait pertinent d'inclure des données sur :
+- Les conflits armés ou les crises politiques : Les guerres ou situations d'instabilité peuvent profondément affecter le bien-être des populations, leur inclusion pourrait permettre de mieux comprendre l'impact des conditions de sécurité.
+- Les évolutions climatiques : Le changement climatique, à travers des événements météorologiques extrêmes (sécheresses, inondations, etc.), pourrait avoir un effet important sur la qualité de vie, particulièrement dans certaines régions plus vulnérables.
+- Les catastrophes majeures : Les tremblements de terre, les pandémies, ou d'autres événements de grande ampleur impactent directement le bien-être matériel et psychologique des populations.
+- Les migrations massives : Des flux migratoires importants, qu'ils soient économiques ou provoqués par des crises, peuvent également influencer la dynamique du bonheur dans les pays d'origine ou d'accueil.
+             
+L'ajout de ces variables permettrait d'obtenir une vue plus globale et plus fine des facteurs influençant le bonheur. 
+Cela permettrait également de mieux comprendre les disparités régionales et d’identifier des mécanismes sous-jacents qui pourraient ne pas être directement visibles dans les données socio-économiques classiques.
+
+Il pourrait aussi être intéressant d'étudier le bonheur des populations et l'image projetée par les médias, tant à l'intérieur qu'à l'extérieur dun pays.
+Cette approche permettrait de mieux comprendre dans quelle mesure la perception médiatique reflète ou diverge de la réalité vécue par les citoyens.
+
+**Conclusion globale**
+             
+Ce projet a permis de mettre en lumière la complexité des facteurs influençant la satisfaction de vie dans le monde. 
+Bien que les indicateurs économiques aient un poids certain, il apparaît clairement que des aspects sociaux, politiques et culturels jouent un rôle tout aussi important dans la perception du bonheur.
+
+En intégrant des variables supplémentaires et en élargissant les horizons d'analyse, il serait possible de mieux comprendre comment des événements globaux ou régionaux affectent la satisfaction de vie. 
+Ce type d'analyse pourrait offrir une perspective plus nuancée sur les dynamiques de bien-être, permettant de mieux appréhender les défis auxquels sont confrontées les populations dans un monde en constante évolution.
+""")
