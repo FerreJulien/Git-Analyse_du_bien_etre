@@ -217,17 +217,29 @@ elif page == "Dataviz'":
         st.title('Relations entre Life Ladder et les différentes variables')
 
         variable = st.selectbox("Sélectionnez une variable", [
-           'Log GDP per capita', 'Social support', 
+         'Log GDP per capita', 'Social support', 
            'Healthy life expectancy at birth', 'Freedom to make life choices',
            'Generosity', 'Perceptions of corruption', 'Positive affect', 'Negative affect'])
 
-        fig = px.scatter(df_2024, 
-                 x= variable, 
+        min_year = int(df_2024['Year'].min())
+        max_year = int(df_2024['Year'].max())
+
+        year_range = st.slider('Sélectionnez une plage d\'années', 
+                       min_value=min_year, 
+                       max_value=max_year, 
+                       value=(min_year, max_year),
+                       step=1)
+
+        df_filtered = df_2024[(df_2024['Year'] >= year_range[0]) & (df_2024['Year'] <= year_range[1])]
+
+        fig = px.scatter(df_filtered, 
+                 x=variable, 
                  y='Life Ladder', 
                  color='Region',
-                 title='Relation entre ' + variable + ' et Life Ladder',
-                 
+                 title=f'Relation entre {variable} et Life Ladder ({year_range[0]} - {year_range[1]})',
                  hover_name='Country name')
+
+
 
         st.plotly_chart(fig)
 
@@ -562,7 +574,7 @@ Cela constitue en soi une information pertinente et intéressante.
 
 
     """)
-#INterprétation des résultats
+#Interprétation des résultats
     st.header("Interprétation des résultats")
     st.write (""" Voici pour rappel les excellentes performances finales de notre modèle selon les indicateurs clés : 
                  
