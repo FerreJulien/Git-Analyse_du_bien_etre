@@ -202,7 +202,7 @@ elif page == "Dataviz'":
         variable = st.selectbox("Sélectionnez une variable", [
            'Log GDP per capita', 'Social support', 
            'Healthy life expectancy at birth', 'Freedom to make life choices',
-           'Generosity', 'Perception of corruption', 'Positive affect', 'Negative affect'])
+           'Generosity', 'Perceptions of corruption', 'Positive affect', 'Negative affect'])
 
         fig = px.scatter(df_2024, 
                  x= variable, 
@@ -250,27 +250,20 @@ elif page == "Dataviz'":
 
     elif option == 'Heatmap':
 
-
-        def conv_float(colonne):
-            if df_2024[colonne].dtype == 'object':
-                df_2024[colonne] = df_2024[colonne].str.replace(',', '.').astype(float)
-
-            colonnes_a_convertir = ['Life Ladder', 'Log GDP per capita', 'Social support', 'Healthy life expectancy at birth',
-                        'Freedom to make life choices', 'Generosity','Perceptions of corruption', 'Positive affect', 'Negative affect']
-
-
-        for colonne in colonnes_a_convertir:
-            conv_float(colonne)
-
-
+        st.title('Heatmap des Corrélations')
+    
+        # Calcul de la matrice de corrélation
+        colonnes_a_convertir = ['Life Ladder', 'Log GDP per capita', 'Social support', 'Healthy life expectancy at birth',
+                            'Freedom to make life choices', 'Generosity','Perceptions of corruption', 'Positive affect', 'Negative affect']
+    
         corr = df_2024[colonnes_a_convertir].corr()
-
 
         plt.figure(figsize=(12, 8))
         sns.heatmap(corr, annot=True, cmap='coolwarm', linewidths=0.5)
-        plt.xticks(rotation=50,ha='right')
+        plt.xticks(rotation=50, ha='right')
         plt.title('Heatmap des Corrélations')
-        plt.show()            
+    
+        st.pyplot(plt)           
 
 
     # BAR CHART RACE
