@@ -608,13 +608,15 @@ Par exemple, il serait pertinent d'inclure des données sur :
 - Les évolutions climatiques : Le changement climatique, à travers des événements météorologiques extrêmes (sécheresses, inondations, etc.), pourrait avoir un effet important sur la qualité de vie, particulièrement dans certaines régions plus vulnérables.
 - Les catastrophes majeures : Les tremblements de terre, les pandémies, ou d'autres événements de grande ampleur impactent directement le bien-être matériel et psychologique des populations.
 - Les migrations massives : Des flux migratoires importants, qu'ils soient économiques ou provoqués par des crises, peuvent également influencer la dynamique du bonheur dans les pays d'origine ou d'accueil.
-             
+
+Et bien d'autres.
+                      
 L'ajout de ces variables permettrait d'obtenir une vue plus globale et plus fine des facteurs influençant le bonheur. 
 Cela permettrait également de mieux comprendre les disparités régionales et d’identifier des mécanismes sous-jacents qui pourraient ne pas être directement visibles dans les données socio-économiques classiques.
 
 Il pourrait aussi être intéressant d'étudier le bonheur des populations et l'image projetée par les médias, tant à l'intérieur qu'à l'extérieur dun pays.
 Cette approche permettrait de mieux comprendre dans quelle mesure la perception médiatique reflète ou diverge de la réalité vécue par les citoyens.
-
+            
 **Conclusion globale**
              
 Ce projet a permis de mettre en lumière la complexité des facteurs influençant la satisfaction de vie dans le monde. 
