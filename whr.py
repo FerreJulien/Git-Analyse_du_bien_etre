@@ -81,14 +81,12 @@ if page == "Contexte":
     st.write("""
     Nous allons représenter visuellement le niveau de bonheur dans le monde et son évolution sur les dernières années. 
     Nous verrons la corrélation des 6 facteurs du WHR sur le niveau de bonheur, avec des distinctions par région.
-    
-    Nous tenterons d’intégrer d’autres paramètres comme le changement climatique pour mesurer leur impact éventuel sur le niveau de bonheur.
+
     """)
 
-    st.markdown("#### 2ème challenge : « Prédire » le bonheur")
+    st.markdown("#### 2ème challenge : Modéliser le bonheur")
     st.write("""
-    Nous allons entraîner et optimiser un modèle qui soit en mesure de prédire le niveau de bonheur par pays pour l’année suivante 
-    avec le plus de justesse possible.
+    Nous allons entraîner et optimiser plusieurs modèles afin de déterminer le plus concluant et l'optimiser.
     """)
 
     st.markdown("#### 3ème challenge : Déterminer la « Recette Magique » du bonheur")
@@ -101,7 +99,7 @@ if page == "Contexte":
         - Un aperçu du jeu de données utilisé.
         - Des visualisations pour explorer les tendances du bonheur dans le monde.
         - Une carte interactive pour comparer les pays.
-        - Une modélisation pour prédire les scores de bonheur.
+        - Différentes modélisations.
     """)
 
 
@@ -150,7 +148,6 @@ elif page == "Jeu de données":
 
     La transformation des données a été effectuée via un **Robust Scaling** pour assurer la comparabilité des variables et optimiser les performances des algorithmes de machine learning. Cette méthode, elle aussi résistante aux **outliers**, permet de neutraliser l'impact des valeurs extrêmes, garantissant que le modèle capte les tendances réelles et fournit des prédictions fiables.
 
-    **Nous prévoyons également d'appliquer une Analyse en Composantes Principales (ACP)** dans la phase de modélisation. Cette technique de réduction de dimension nous permettra de simplifier le modèle en réduisant le nombre de variables tout en conservant l'essentiel de l'information. Le but étant d’éventuellement améliorer les performances des modèles et limiter le risque de **surapprentissage**.
     """)
 
 # Aperçu du dataset modifié
